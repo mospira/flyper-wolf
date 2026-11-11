@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "repo_id": "mospira/fw-est",
+  "revision": "0563ee0400b30a34a729cbf742978a7beb1a6f87",
+  "files": {
+    "fw-est342/best.pt": {
+      "sha256": "858eaff1cbc17bf021fd66dec0509491da007f322a7471930dd83926c5d771d5",
+      "bytes": 51659785
+    },
+    "fw-est342/manifest.yaml": {
+      "sha256": "62ea0ee9b362d2c4af6429fdd1f646b537551e00b8795b8741d2958837384fe6",
+      "bytes": 744
+    },
+    "fw-est342/output-order.npz": {
+      "sha256": "75d0bf0199b362498b9ac440db5986fa408caad7a6a63ac3bf639c93714d1b2c",
+      "bytes": 1177450
+    }
+  },
+  "verification": "Fresh pinned HF CLI download; all three files match pre-upload SHA256 and size; CPU loader validates manifest and three seeded predictions exactly match local checkpoint",
+  "input_rows": 3,
+  "input_seed": 74,
+  "inference_scope": "Estimator-only prediction parity, not a fresh closed-loop episode",
+  "assembled_bundle_validation": {
+    "status": "passed",
+    "estimator_source": "Pinned Hugging Face download",
+    "flyvis_source": "Existing local exact frozen circuit",
+    "run_mode": "--dry-run; no closed-loop inference executed"
+  },
+  "model_card_revision": "9a15a51e8657fb828dd7e872a8d32c34c3bc75db",
+  "model_card_sha256": "1ca56ed34b3ceb53e909d9e091a32c1f105a1966af7857ef3c2d6d4646d8caea"
+}

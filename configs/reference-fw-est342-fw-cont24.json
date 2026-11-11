@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "name": "fw-est342-fw-cont24-watch-reference",
+  "scope": "One known compatibility episode, not a research benchmark or public release selection",
+  "identity": {
+    "episode": {
+      "duration_seconds": 10.0,
+      "target_seed": 302000001,
+      "camera_seed": 303000001,
+      "target_speed": 1.1,
+      "trajectory_version": "smooth-reactive-plane-v1",
+      "initial_yaw": -23.859713684754542,
+      "initial_pitch": 14.185694341175289,
+      "episode_ticks": 1000
+    },
+    "scene": {
+      "schema_version": 1,
+      "observation_dt": 0.01,
+      "room_dimensions": [
+        12.0,
+        16.0,
+        8.0
+      ],
+      "wall_gray": [
+        0.2,
+        0.25,
+        0.28,
+        0.32,
+        0.16,
+        0.36
+      ],
+      "camera_position": [
+        0.0,
+        -6.0,
+        4.0
+      ],
+      "horizontal_fov": 90.0,
+      "image_size": [
+        384,
+        384
+      ],
+      "target_radius": 0.288,
+      "target_gray": 1.0,
+      "max_angular_speed": 60.0,
+      "pitch_limit": 80.0,
+      "receptor_extent": 15,
+      "pooling_kernel": 11
+    },
+    "estimator": {
+      "checkpoint_sha256": "858eaff1cbc17bf021fd66dec0509491da007f322a7471930dd83926c5d771d5",
+      "output_order_sha256": "75d0bf0199b362498b9ac440db5986fa408caad7a6a63ac3bf639c93714d1b2c",
+      "selected_epoch": 342
+    },
+    "flyvis": {
+      "checkpoint_sha256": "d8a57a022aa18ca338599be713af9db29b89cde4b00098ffe42b78f0d583e46a",
+      "model_config_sha256": "2aa8a9505324c82bbb4011ee2f7c375b5f8b1bddde1a5281e038baecf91fc5dd",
+      "connectome_sha256": "bfbb0766251ff09e22723d0ebbf7b14793e70b3ae8ad0eea64eac9d28223351a",
+      "flyvis_version": "1.2.0"
+    }
+  },
+  "metrics": {
+    "duration_seconds": {
+      "value": 10.0,
+      "absolute_tolerance": 1e-10
+    },
+    "time_on_target_pct": {
+      "value": 87.13,
+      "absolute_tolerance": 1e-10
+    },
+    "mean_error_deg": {
+      "value": 3.9974472187764163,
+      "absolute_tolerance": 1e-08
+    },
+    "p90_error_deg": {
+      "value": 2.4577551273446745,
+      "absolute_tolerance": 1e-08
+    },
+    "first_hit_seconds": {
+      "value": 1.01,
+      "absolute_tolerance": 1e-10
+    },
+    "circuit_steps": {
+      "value": 1000,
+      "absolute_tolerance": 1e-10
+    },
+    "prediction_updates": {
+      "value": 980,
+      "absolute_tolerance": 1e-10
+    },
+    "action_updates": {
+      "value": 980,
+      "absolute_tolerance": 1e-10
+    }
+  },
+  "configuration": {
+    "controller": {
+      "gain_yaw": 24.0,
+      "gain_pitch": 24.0
+    },
+    "runtime": {
+      "integration_dt": 0.005,
+      "warmup_seconds": 1.0,
+      "initial_zero_ticks": 20,
+      "scoring_substeps": 10,
+      "seed": 74
+    }
+  }
+}

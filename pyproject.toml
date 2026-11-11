@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "flyper-wolf"
+version = "0.1.0"
+description = "Frozen fly visual circuit tracking: research and reproducible inference"
+requires-python = ">=3.12,<3.13"
+dependencies = ["numpy==2.5.3", "PyYAML==6.0.3", "pillow==12.3.0"]
+
+[project.optional-dependencies]
+inference = [
+  "torch==2.14.0", "torchvision==0.29.0", "flyvis==1.2.0",
+  "panda3d==1.10.16", "imageio==2.37.4", "av==17.1.0",
+]
+download = ["huggingface-hub>=0.34,<2"]
+
+[dependency-groups]
+dev = ["pytest==9.1.1"]
+
+[project.scripts]
+flyper-wolf = "flyper_wolf.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/flyper_wolf"]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu130", marker = "sys_platform == 'win32'" }]
+torchvision = [{ index = "pytorch-cu130", marker = "sys_platform == 'win32'" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["inference: requires the inference extra", "render: requires an OpenGL context"]

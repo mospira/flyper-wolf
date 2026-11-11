@@ -1,0 +1,11 @@
+{
+  "source_video_sha256": "691137035180ea7ff8e5f996549df969cd93dc71f70d4d0c931eaf888befff99",
+  "gif_sha256": "81c5af79be837b293cde49c7ee323ca52521f74b2ecd001985e44b7f44fbfd4e",
+  "source_duration_seconds": 10.0,
+  "playback_speed": 1,
+  "frames": 100,
+  "fps": 10,
+  "width": 384,
+  "display_label": "fw-est342 + fw-cont24",
+  "purpose": "Display-only derivative; episode metrics come from the original scoring trace"
+}

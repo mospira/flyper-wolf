@@ -1,0 +1,13 @@
+{
+  "source_video_sha256": "4edb00d3320c9a618f6899585c204fc213f5d9be0db1189f1d720bdac7855427",
+  "gif_sha256": "ff319271eadc6ab2639bb641b073866f76d25093a5dc983052da5713bc770c75",
+  "source_duration_seconds": 60.0,
+  "playback_speed": 4.0,
+  "frames": 150,
+  "fps": 10,
+  "width": 512,
+  "purpose": "Display-only derivative; episode metrics come from the original scoring trace",
+  "source_gif_sha256": "f87075b010d32535d005be6e9ffffcd68f3f72260a59c3fd666594ab1b40fffe",
+  "display_label": "fw-est342 + fw-cont24",
+  "edit": "Replaced the existing footer model/controller label; preserved frame count, playback timing, scene and remaining metrics text."
+}

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "repo_id": null,
+  "revision": null,
+  "manifest_file": "manifest.json",
+  "manifest_sha256": null,
+  "note": "Complete inference bundle not published. fw-est342 is published separately at https://huggingface.co/mospira/fw-est; see fw-est342.json for the pinned estimator-only release. Do not use this descriptor for an estimator-only download. A complete bundle also needs the exact frozen FlyVis artifacts, an immutable revision, and manifest checksum."
+}

@@ -1,0 +1,22 @@
+# Paths resolve relative to this configuration file. CLI overrides use the cwd.
+schema_version: 1
+model_bundle: ../models/release
+scene:
+  target_radius: 0.288
+episode:
+  duration_seconds: 10.0
+  target_seed: 302000001
+  camera_seed: 303000001
+  target_speed: 1.1
+  trajectory_version: smooth-reactive-plane-v1
+runtime:
+  device: cpu
+  integration_dt: 0.005
+  warmup_seconds: 1.0
+  initial_zero_ticks: 20
+  scoring_substeps: 10
+  video: true
+  video_fps: 50
+controller:
+  gain_yaw: 24.0
+  gain_pitch: 24.0

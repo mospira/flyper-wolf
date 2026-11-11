@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "display_label": "fw-est342 + fw-cont24",
+  "source_neural_manifest_sha256": "cb79f333a3e5c552b5fc5a852a003add6dc9c08330474226242c76310d2f511e",
+  "gif_sha256": "4427ee56f03ff2e9e40a883f3e6de947e11dbece0bff685a42c0987d846e95cb",
+  "source_ticks": 1000,
+  "frames": 100,
+  "fps": 10,
+  "source_dt": 0.01,
+  "display_stride": 10,
+  "layers": [
+    "T4a",
+    "T4b",
+    "T4c",
+    "T4d",
+    "T5a",
+    "T5b",
+    "T5c",
+    "T5d"
+  ],
+  "baseline": "Actual pre-episode neutral-gray-adapted circuit state",
+  "color_limit": 0.2937377691268921,
+  "scale": "Shared symmetric 99.5th percentile across shown types and all source ticks",
+  "input_timestamp": "tick * dt",
+  "activity_timestamp": "(tick + 1) * dt",
+  "model": {
+    "model_dir": "D:\\Projects\\flyper-wolf\\models\\local\\flyvis",
+    "checkpoint": "D:\\Projects\\flyper-wolf\\models\\local\\flyvis\\best_chkpt",
+    "checkpoint_sha256": "d8a57a022aa18ca338599be713af9db29b89cde4b00098ffe42b78f0d583e46a",
+    "model_config_sha256": "2aa8a9505324c82bbb4011ee2f7c375b5f8b1bddde1a5281e038baecf91fc5dd",
+    "connectome_sha256": "bfbb0766251ff09e22723d0ebbf7b14793e70b3ae8ad0eea64eac9d28223351a",
+    "flyvis_version": "1.2.0",
+    "torch_version": "2.14.0+cu130",
+    "torch_build": "2.14.0+cu130",
+    "device": "cuda:0",
+    "cuda_available": true,
+    "cuda_runtime": "13.0",
+    "device_name": "NVIDIA GeForce RTX 4070",
+    "datamate_version": "1.0.0",
+    "windows_hdf5_workaround": true,
+    "cells": 45669,
+    "edges": 1513231,
+    "cell_types": 65,
+    "parameter_values": 3693,
+    "trainable_parameter_values": 0,
+    "pretraining_task": {
+      "type": "MultiTaskSintel",
+      "tasks": [
+        "flow"
+      ],
+      "boxfilter": {
+        "extent": 15,
+        "kernel_size": 13
+      },
+      "vertical_splits": 3,
+      "n_frames": 19,
+      "center_crop_fraction": 0.7,
+      "dt": 0.02,
+      "augment": true,
+      "random_temporal_crop": true,
+      "all_frames": false,
+      "resampling": true,
+      "interpolate": true,
+      "p_flip": 0.5,
+      "p_rot": 0.5,
+      "contrast_std": 0.2,
+      "brightness_std": 0.1,
+      "gaussian_white_noise": 0.08,
+      "gamma_std": null,
+      "_init_cache": true,
+      "unittest": false,
+      "flip_axes": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "purpose": "Recorded activity visualization; display-only temporal downsampling"
+}
