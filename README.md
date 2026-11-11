@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/media/flyper-wolf-spin.gif" alt="Spinning Flyper Wolf model" width="480">
+</p>
+
 # Flyper Wolf
 
 ![Ten-second neural activity visualization with synchronized tracking footage](docs/media/neural-overview-10s.gif)
