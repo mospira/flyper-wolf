@@ -1,10 +1,20 @@
 <p align="center">
-  <img src="docs/media/flyper-wolf-spin.gif" alt="Spinning Flyper Wolf model" width="480">
+  <img src="docs/media/flyper-wolf-spin.gif" alt="Spinning Flyper Wolf model" width="200">
 </p>
 
-# Flyper Wolf
+<h1 align="center">Flyper Wolf</h1>
 
-![Ten-second neural activity visualization with synchronized tracking footage](docs/media/neural-overview-10s.gif)
+<p align="center">
+  <a href="#running-locally"><img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12"></a>
+  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.14.0-EE4C2C?logo=pytorch&amp;logoColor=white" alt="PyTorch 2.14.0"></a>
+  <a href="https://github.com/TuragaLab/flyvis"><img src="https://img.shields.io/badge/FlyVis-1.2.0-6F42C1" alt="FlyVis 1.2.0"></a>
+  <a href="https://huggingface.co/mospira/fw-est/tree/0563ee0400b30a34a729cbf742978a7beb1a6f87/fw-est342"><img src="https://img.shields.io/badge/Model-fw--est342-FFD21E?logo=huggingface&amp;logoColor=white" alt="Model fw-est342 on Hugging Face"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green" alt="MIT license"></a>
+</p>
+
+<p align="center">
+  <img src="docs/media/neural-overview-10s.gif" alt="Ten-second neural activity visualization with synchronized tracking footage">
+</p>
 
 The task is to keep a camera aimed at a moving bright sphere. The camera can turn in yaw and pitch but cannot move through the room. The system must infer where to aim from visual-circuit activity, rather than reading the target's position from the simulator.
 
@@ -42,17 +52,23 @@ flowchart TB
 
 The estimator receives circuit activity; the controller receives its predicted direction. Neither receives raw images, true target state, camera pose, seeds, future observations, or score. Simulator geometry supplies training labels and evaluation truth outside inference. Display overlays are added afterward.
 
-![Ten-second tracking example](docs/media/tracking-10s.gif)
+<p align="center">
+  <img src="docs/media/tracking-10s.gif" alt="Ten-second tracking example">
+</p>
 
-*fw-est342 + fw-cont24: ten-second example at normal speed, 87.13% time on target. Target/camera seeds: 302000001/303000001.*
+<p align="center"><em>fw-est342 + fw-cont24: ten-second example at normal speed, 87.13% time on target. Target/camera seeds: 302000001/303000001.</em></p>
 
-![Continuous sixty-second tracking example](docs/media/tracking-60s.gif)
+<p align="center">
+  <img src="docs/media/tracking-60s.gif" alt="Continuous sixty-second tracking example">
+</p>
 
-*fw-est342 + fw-cont24: continuous sixty-second episode shown at 4× speed, 96.811667% time on target. Target/camera seeds: 304000001/305000001. One reset and one continuous episode. Its scenario differs from the ten-second example, so their scores do not isolate duration's effect.*
+<p align="center"><em>fw-est342 + fw-cont24: continuous sixty-second episode shown at 4× speed, 96.811667% time on target. Target/camera seeds: 304000001/305000001. One reset and one continuous episode. Its scenario differs from the ten-second example, so their scores do not isolate duration's effect.</em></p>
 
-![Recorded receptor input and T4/T5 neural activity](docs/media/neural-activity.gif)
+<p align="center">
+  <img src="docs/media/neural-activity.gif" alt="Recorded receptor input and T4/T5 neural activity">
+</p>
 
-*Actual receptor input and T4/T5 activity from the ten-second fw-est342 + fw-cont24 episode. Blue/red show decreases/increases from the circuit's gray-adapted reset state, with one fixed shared scale across the eight cell types. These are continuous model values (not spikes). Input at time t produces the neural state at t + 10 ms. The GIF displays 10 frames/s; inference and archival recording remain at 100 Hz.*
+<p align="center"><em>Actual receptor input and T4/T5 activity from the ten-second fw-est342 + fw-cont24 episode. Blue/red show decreases/increases from the circuit's gray-adapted reset state, with one fixed shared scale across the eight cell types. These are continuous model values (not spikes). Input at time t produces the neural state at t + 10 ms. The GIF displays 10 frames/s; inference and archival recording remain at 100 Hz.</em></p>
 
 An MP4 exporter renders all model units as a rotating 3D point cloud alongside the episode video and receptor input. Visual-field coordinates come from the model; depth separates cell types schematically and does not represent brain anatomy or processing order. Its fixed per-type color scales reveal changes within each type so intensity should not be compared between types. The commands below regenerate these visualizations without a browser.
 
@@ -119,7 +135,7 @@ Fifteen of sixteen scenarios improved. The mean paired gain was 24.07875 percent
 
 </details>
 
-## 4. Run inference locally
+## Running Locally
 
 Use Python 3.12 and the pinned [dependency lockfile](uv.lock). Commands use Bash, including Git Bash on Windows.
 
@@ -181,9 +197,7 @@ python -m flyper_wolf neural-video --run runs/neural-example \
 python scripts/make_neural_gif.py runs/neural-example runs/neural-example/neural-activity.gif
 ```
 
-The optional `neural/` archive contains every model unit and receptor input at full float32 precision, the reset baseline, cell coordinates, and a checksum manifest (about 188 MB per ten seconds for this model). Recording preserves inference behavior: the checked ten-second run produced byte-identical traces and metrics with recording on and off ([parity receipt](docs/evidence/neural-recording-parity.json)). The renderer reads these arrays without loading weights or rerunning the circuit, writes MP4 plus a provenance JSON, and includes `episode.mp4` when present and verified against the same run. It requires NumPy, Pillow, and PyAV from the pinned environment. A video alone cannot recover neural activity; episodes made without recording must be rerun with `--record-neural`. Display frame rate does not change the saved observations or score.
-
-Windows is the verified platform. A ten-second reference took **318.09 s including cold initialization** on Windows 11 / RTX 4070 / Python 3.12.13 / PyTorch 2.14.0+cu130. This is one run, not a throughput guarantee. CPU execution passed a [0.3 s smoke check](docs/evidence/cpu-smoke.json); CPU throughput and other platforms remain unmeasured. Panda3D needs a working offscreen OpenGL context, and CUDA needs a compatible GPU PyTorch build; inspect `doctor` output if setup fails. Supply the complete bundle if files or checksums disagree.
+The `neural/` archive contains every model unit and receptor input at full float32 precision, the reset baseline, cell coordinates, and a checksum manifest (about 188 MB per ten seconds for this model). Recording preserves inference behavior: the checked ten-second run produced byte-identical traces and metrics with recording on and off ([parity receipt](docs/evidence/neural-recording-parity.json)). The renderer reads these arrays without loading weights or rerunning the circuit, writes MP4 plus a provenance JSON, and includes `episode.mp4` when present and verified against the same run. It requires NumPy, Pillow, and PyAV from the pinned environment. A video alone cannot recover neural activity; episodes made without recording must be rerun with `--record-neural`. Display frame rate does not change the saved observations or score.
 
 <details>
 <summary>Export local artifacts and check the fixed reference</summary>
@@ -213,7 +227,7 @@ The checker uses [reference-fw-est342-fw-cont24.json](configs/reference-fw-est34
 
 </details>
 
-## 5. Credits
+## Credits
 
 [FlyVis](https://github.com/TuragaLab/flyvis) supplies the connectome-constrained visual-system model, pretrained visual parameters, and circuit simulation. The upstream research is Janne K. Lappalainen et al., **Connectome-constrained networks predict neural activity across the fly visual system**, Nature (2024): [paper](https://doi.org/10.1038/s41586-024-07939-3), [software documentation](https://turagalab.github.io/flyvis/).
 

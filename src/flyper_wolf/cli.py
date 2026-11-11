@@ -153,7 +153,7 @@ def parser():
     command.add_argument("--estimator-manifest", required=True)
     command.add_argument("--flyvis-dir", required=True)
     command.add_argument("--output", required=True)
-    command.add_argument("--release-id", default="local-smoke")
+    command.add_argument("--release-id", default="local-inference")
     command.add_argument("--config", default="configs/episode.yaml", help="Inference defaults to include with the exported models")
     command = sub.add_parser("neural-video", help="Render recorded neural activity to MP4 offline")
     command.add_argument("--run", required=True, help="Episode directory generated with --record-neural")

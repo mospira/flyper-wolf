@@ -164,10 +164,10 @@ def _publish(stage: Path, destination: Path) -> VerifiedBundle:
 
 
 def export_local_bundle(estimator_manifest: str | Path, flyvis_dir: str | Path,
-                        destination: str | Path, *, release_id: str = "local-smoke",
+                        destination: str | Path, *, release_id: str = "local-inference",
                         compatible_code_revision: str | None = None,
                         inference_config: Mapping[str, Any] | None = None) -> VerifiedBundle:
-    """Copy an explicitly selected local model into an unpublished smoke bundle.
+    """Copy an explicitly selected local model into an unpublished local inference bundle.
 
     Only estimator inference identity is retained from its YAML; development
     paths and private provenance are removed. Weights and output order retain
@@ -218,7 +218,7 @@ def export_local_bundle(estimator_manifest: str | Path, flyvis_dir: str | Path,
         artifacts = {path.relative_to(stage).as_posix(): sha256_file(path)
                      for path in sorted(stage.rglob("*")) if path.is_file()}
         manifest = {"schema_version": 1, "release_id": release_id,
-                    "release_status": "unpublished-local-smoke",
+                    "release_status": "unpublished-local",
                     "compatible_code_revision": compatible_code_revision,
                     "estimator_manifest": "estimator/manifest.yaml", "flyvis_dir": "flyvis",
                     "source_estimator_manifest_sha256": sha256_file(source),
