@@ -111,11 +111,7 @@ The current estimator improved direction decoding on its saved validation views,
 | Ten-second tracking example | **87.13%** time on target | One closed-loop scenario; first hit 1.010 s; mean aiming error 3.997447° |
 | Continuous minute example | **96.811667%** time on target | One closed-loop scenario; first hit 0.739 s; mean aiming error 1.090365° |
 
-On the same saved views, initialization 315 scored 1.195592° and final epoch 343 scored 0.257250°. fw-est342 reduced that mean error by 79.15%; its episode means ranged from 0.128643° to 0.812589° (median 0.197808°). See [retained result provenance](docs/evidence/provenance.json).
-
-These validation cases selected the checkpoint, and each example covers one scenario. Together they do not establish fw-est342's average closed-loop performance or superiority over 315. The underlying training activity arrays were deleted after verified export; retained report statistics cannot support a fresh recomputation of every prediction.
-
-The environment has one bright target, fixed geometry, restricted camera motion, and synthetic trajectories. Natural clutter, multiple targets, and real cameras are unvalidated. Low average error can hide brief severe misses; turn-rate clipping can delay recovery even after a good estimate. No human-performance comparison is claimed.
+On the same saved views, initialization 315 scored 1.195592° and final epoch 343 scored 0.257250°. fw-est342 reduced that mean error by 79.15%; its episode means ranged from 0.128643° to 0.812589° (median 0.197808°). See [retained result provenance](docs/evidence/README.md#saved-view-validation).
 
 <details>
 <summary>Earlier matched tracking comparison: 277 versus 315</summary>
@@ -131,7 +127,7 @@ An earlier preliminary comparison let both estimators control their own cameras 
 | Acquired / ended off target | 16/16 / 8/16 | 16/16 / 3/16 |
 | Exposure above 45° error | 0.64125% | 0.79625% |
 
-Fifteen of sixteen scenarios improved. The mean paired gain was 24.07875 percentage points; a 95% percentile-bootstrap interval was [17.81246875, 30.14196875], resampling matched episodes 20,000 times with seed 74. Severe-error exposure rose slightly, and only 7/16 cases acquired sooner. This supports improvement on those scenarios, not generally faster acquisition or broad reliability. No final-test evaluation occurred. Evidence: [per-case CSV](docs/evidence/277-vs315-per-case.csv) and [summary](docs/evidence/277-vs315-summary.json).
+Fifteen of sixteen scenarios improved. The mean paired gain was 24.07875 percentage points; a 95% percentile-bootstrap interval was [17.81246875, 30.14196875], resampling matched episodes 20,000 times with seed 74. Severe-error exposure rose slightly, and only 7/16 cases acquired sooner. This supports improvement on those scenarios, not generally faster acquisition or broad reliability. No final-test evaluation occurred. Evidence: [per-case CSV](docs/evidence/277-vs315-per-case.csv) and [comparison details](docs/evidence/README.md#earlier-matched-comparison).
 
 </details>
 
@@ -148,7 +144,7 @@ python -m flyper_wolf doctor --config configs/episode.yaml
 python -m flyper_wolf --help
 ```
 
-**Models:** [fw-est342 is published on Hugging Face](https://huggingface.co/mospira/fw-est). The [pinned release](https://huggingface.co/mospira/fw-est/tree/0563ee0400b30a34a729cbf742978a7beb1a6f87/fw-est342) contains its checkpoint (including normalization), feature order, and manifest. [Release identities and checksums](releases/fw-est342.json) bind these exact artifacts. fw-cont24 is code/configuration in this repository and has no weights to download.
+**Models:** The [fw-est342 model card and downloads](https://huggingface.co/mospira/fw-est) are on Hugging Face. The [pinned release](https://huggingface.co/mospira/fw-est/tree/0563ee0400b30a34a729cbf742978a7beb1a6f87/fw-est342) contains its checkpoint (including normalization), feature order, and manifest. [Release identities and checksums](releases/fw-est342.json) bind these exact artifacts. fw-cont24 is code/configuration in this repository and has no weights to download.
 
 Download the estimator with the Hugging Face CLI installed by the dependency setup above:
 
@@ -167,7 +163,7 @@ python -m flyper_wolf export \
   --output models/local --release-id fw-est342-fw-cont24
 ```
 
-The [complete-bundle preview descriptor](releases/preview.json) remains unconfigured and is not needed for the estimator download above. A single-download bundle including the frozen circuit is not published.
+A single-download bundle including the frozen circuit is not published.
 
 With the assembled compatible bundle in `models/local`, validate it and generate an episode:
 
@@ -197,7 +193,7 @@ python -m flyper_wolf neural-video --run runs/neural-example \
 python scripts/make_neural_gif.py runs/neural-example runs/neural-example/neural-activity.gif
 ```
 
-The `neural/` archive contains every model unit and receptor input at full float32 precision, the reset baseline, cell coordinates, and a checksum manifest (about 188 MB per ten seconds for this model). Recording preserves inference behavior: the checked ten-second run produced byte-identical traces and metrics with recording on and off ([parity receipt](docs/evidence/neural-recording-parity.json)). The renderer reads these arrays without loading weights or rerunning the circuit, writes MP4 plus a provenance JSON, and includes `episode.mp4` when present and verified against the same run. It requires NumPy, Pillow, and PyAV from the pinned environment. A video alone cannot recover neural activity; episodes made without recording must be rerun with `--record-neural`. Display frame rate does not change the saved observations or score.
+The `neural/` archive contains every model unit and receptor input at full float32 precision, the reset baseline, cell coordinates, and a checksum manifest (about 188 MB per ten seconds for this model). Recording preserves inference behavior: the checked ten-second run produced byte-identical traces and metrics with recording on and off ([recording check](docs/evidence/README.md#neural-recording)). The renderer reads these arrays without loading weights or rerunning the circuit, writes MP4 plus a provenance JSON, and includes `episode.mp4` when present and verified against the same run. It requires NumPy, Pillow, and PyAV from the pinned environment. A video alone cannot recover neural activity; episodes made without recording must be rerun with `--record-neural`. Display frame rate does not change the saved observations or score.
 
 <details>
 <summary>Export local artifacts and check the fixed reference</summary>
@@ -213,7 +209,7 @@ python -m flyper_wolf export \
 
 Keep weights outside ordinary Git history. Exporting does not publish them or grant redistribution rights.
 
-The standalone runner reproduced the ten-second fw-est342 example in a fresh independent environment: **87.13% time on target, identical metrics, and all 1,000 numeric trace rows equal** to the development reference. The inspected MP4 has 500 frames at 50 fps. See the [parity receipt](docs/evidence/reference-fw-est342-fw-cont24-parity.json).
+The standalone runner reproduced the ten-second fw-est342 example in a fresh independent environment: **87.13% time on target, identical metrics, and all 1,000 numeric trace rows equal** to the development reference. The inspected MP4 has 500 frames at 50 fps. See the [compatibility check](docs/evidence/README.md#standalone-runner).
 
 After exporting that exact bundle, run its pinned reference configuration:
 
@@ -223,7 +219,7 @@ python -m flyper_wolf run --config models/local/inference-config.yaml \
 python scripts/check_reference.py runs/my-reference
 ```
 
-The checker uses [reference-fw-est342-fw-cont24.json](configs/reference-fw-est342-fw-cont24.json) for identities, metrics, frozen parameters, output hashes, and trace cadence. Diagnostic bounds are 1e-8 degrees for angular metrics and 1e-10 for other numerical metrics. The observed comparison was exact on the recorded setup; these bounds are not measured cross-hardware tolerances. The pinned estimator download passed checksum checks and exact CPU prediction parity, and a bundle assembled with locally supplied FlyVis artifacts passed configuration validation ([download verification](docs/evidence/fw-est342-hf-verification.json)). A fresh closed-loop episode using that downloaded bundle has not been run. Demonstration seeds are already consumed cases, suitable for compatibility rather than fresh research confirmation.
+The checker uses [reference-fw-est342-fw-cont24.json](configs/reference-fw-est342-fw-cont24.json) for identities, metrics, frozen parameters, output hashes, and trace cadence. Diagnostic bounds are 1e-8 degrees for angular metrics and 1e-10 for other numerical metrics. The observed comparison was exact on the recorded setup; these bounds are not measured cross-hardware tolerances. The pinned estimator download passed checksum checks and exact CPU prediction parity, and a bundle assembled with locally supplied FlyVis artifacts passed configuration validation ([download verification](docs/evidence/README.md#estimator-download)). A fresh closed-loop episode using that downloaded bundle has not been run. Demonstration seeds are already consumed cases, suitable for compatibility rather than fresh research confirmation.
 
 </details>
 
