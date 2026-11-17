@@ -138,7 +138,7 @@ hf download mospira/fw-est \
   --include 'fw-est342/*' --local-dir models/fw-est
 ```
 
-The exact frozen FlyVis 1.2.0 `flow/0000/000` circuit is a separate dependency; this estimator download does not include its weights. Given the matching upstream circuit directory containing `best_chkpt` and `_meta.yaml`, assemble a local inference bundle:
+The exact frozen FlyVis 1.2.0 `flow/0000/000` circuit is a separate dependency. Given the matching upstream circuit directory containing `best_chkpt` and `_meta.yaml`, assemble a local inference bundle:
 
 ```bash
 python -m flyper_wolf export \
@@ -146,8 +146,6 @@ python -m flyper_wolf export \
   --flyvis-dir /path/to/flow/0000/000 \
   --output models/local --release-id fw-est342-fw-cont24
 ```
-
-A single-download bundle including the frozen circuit is not published.
 
 With the assembled compatible bundle in `models/local`, validate it and generate an episode:
 
@@ -163,9 +161,7 @@ python -m flyper_wolf run --config configs/episode.yaml \
 
 [The example configuration](configs/episode.yaml) contains `scene`, `episode`, `runtime`, and `controller` settings. Defaults reproduce the ten-second example: master seed `9122296628466624745`, speed 1.1, radius 0.288, 100 Hz observations, 20 startup ticks, 5 ms circuit integration, ten scoring substeps, 50 fps video, and gains 24/24. It defaults to CPU; the camera start is seeded unless both yaw and pitch are explicitly set. Duration must exceed startup and align with observation/video timing. Changing scene, timing, motion, or control settings changes the experiment.
 
-One `episode.master_seed` determines target motion and the camera's random starting pose. It is an unsigned 64-bit integer, written as a quoted decimal string in YAML/JSON so browser tools preserve every digit. Python accepts exact integers or canonical decimal strings from `0` through `18446744073709551615`; signs, leading zeros, floating-point values, and booleans are rejected. The fixed `splitmix64-v1` scheme scrambles that value, then uses the lower 32 bits internally for target motion and the upper 32 bits for camera pose. Neither internal seed is a public setting or model input. Backend reproducibility setup uses an internal fixed seed 74, independent of episode identity.
-
-New episodes accept only the master seed. The documented demonstrations retain their original trajectories and scores under their converted master identities. Existing model bundles remain readable: verification checks their original checksums before converting archived episode settings in memory, leaving the files unchanged. Use the current configuration when running them; re-export from their original model artifacts to obtain a bundle with current defaults. See [archived episode compatibility](docs/evidence/README.md#archived-episode-compatibility) for migration details.
+One `episode.master_seed` determines target motion and the camera's random starting pose. It is an unsigned 64-bit integer, written as a quoted decimal string in YAML/JSON so browser tools preserve every digit. Python accepts exact integers or canonical decimal strings from `0` through `18446744073709551615`. Signs, leading zeros, floating-point values, and booleans are rejected. The fixed `splitmix64-v1` scheme scrambles that value, then uses the lower 32 bits internally for target motion and the upper 32 bits for camera pose.
 
 Each run saves `resolved-config.yaml`, `metadata.json` (code/model/runtime identities and output hashes), `metrics.json`, `trace.csv`, and optional `episode.mp4`. Read time on target from metrics rather than counting video contacts. No development checkout or training corpus is needed.
 
