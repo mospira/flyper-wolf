@@ -164,7 +164,8 @@ def recorded(run):
         _network=SimpleNamespace(connectome=SimpleNamespace(edges=SimpleNamespace(
             source_index=np.array([0, 1]), target_index=np.array([1, 2])))))
     rec = NeuralRecorder(run, fly, np.zeros(4, np.float32), ticks=6, observation_dt=.01,
-                         estimator_identity={}, episode={}, frozen_hash="fly", estimator_hash="estimator")
+                         estimator_identity={}, episode={"master_seed": "0", "seed_scheme": "splitmix64-v1"},
+                         frozen_hash="fly", estimator_hash="estimator")
     for value in [0, 1, 7, 8, 3, 4]:
         rec.append(np.full(4, value, np.float32), np.full(721, .5, np.float32))
     rec.close(complete=True)

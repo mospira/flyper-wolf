@@ -6,6 +6,18 @@ from pathlib import Path
 import yaml
 
 from .neural_recording import _hash
+from .seeding import episode_seed_identity
+
+
+def recording_seed_identity(recording):
+    """Read the single episode identity, including verified archival recordings."""
+    return episode_seed_identity(recording["manifest"]["episode"])
+
+
+def seed_comment(identity):
+    """Embed exact episode identity in GIF metadata without changing its pixels."""
+    return (f"FLYPER_EPISODE master_seed={identity['master_seed']} "
+            f"seed_scheme={identity['seed_scheme']}").encode("ascii")
 
 
 def pair_label(estimator, controller, max_angular_speed=60):

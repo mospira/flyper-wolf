@@ -58,6 +58,14 @@ that setup and known case; it does not establish cross-hardware equality or
 closed-loop parity for a freshly downloaded bundle. See the executable
 [reference configuration](../../configs/reference-fw-est342-fw-cont24.json).
 
+## Neural overview presentation
+
+The neural overview was subsequently rendered again with a fixed 3D viewing angle.
+Its activity, receptor input, and synchronized episode still animate from the same
+recording at 50 fps. Its [updated receipt](../media/neural-overview-10s.json) records
+the new rendering and GIF hashes; this presentation change does not rerun inference
+or alter episode metrics.
+
 ## Neural recording
 
 Enabling recording on that reference case left metrics and trace byte-identical

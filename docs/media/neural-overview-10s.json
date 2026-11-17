@@ -1,18 +1,21 @@
 {
   "schema_version": 1,
-  "source_video": "runs/neural342-readme-50fps/neural-activity.mp4",
-  "source_video_sha256": "c327860ae8de2af00295dc6854c0d28f0c085a9299817febd33aee47feb97e20",
-  "source_render_receipt": "runs/neural342-readme-50fps/neural-activity.json",
-  "source_render_receipt_sha256": "26d2ab893122f66ea11f8c6c6e999671575172126008adc3ad47bfb4b5b2e4bd",
+  "master_seed": "9122296628466624745",
+  "seed_scheme": "splitmix64-v1",
+  "source_video": "runs/neural342-readme-fixed-view-50fps/neural-activity.mp4",
+  "source_video_sha256": "bd5da46037fa6b066dc00061a65692d49ceb302684897e6bd544c4637cad547d",
+  "source_render_receipt": "runs/neural342-readme-fixed-view-50fps/neural-activity.json",
+  "source_render_receipt_sha256": "a689a4a3974bd225cfef276cc596a51e79d9ce523d898d4e311eeaf88f4012b0",
   "source_neural_manifest": "runs/neural342/neural/manifest.json",
   "source_neural_manifest_sha256": "cb79f333a3e5c552b5fc5a852a003add6dc9c08330474226242c76310d2f511e",
   "source_episode_metadata": "runs/neural342/metadata.json",
   "source_episode_metadata_sha256": "3b7b3cdf4dbc159941dc42adc1dcf5700771d1abc401019cf29ba33e85b60d7e",
   "source_episode_video": "runs/neural342/episode.mp4",
   "source_episode_video_sha256": "691137035180ea7ff8e5f996549df969cd93dc71f70d4d0c931eaf888befff99",
-  "renderer_sha256": "b8df3d28b722c9cb50aae2b59955650c00b27acf97da664cd8dcd00172d0a909",
-  "gif_sha256": "780d65fc1852229187e15c4ed4e29d38b4f58bc5f22bf06599720ce9869bc8d4",
-  "gif_size_bytes": 28963279,
+  "renderer_sha256": "5990c6eae7ca73ab1d051f008cf80fc535ab73fb0d12f9565ead7d1ea8696ab2",
+  "encoder_sha256": "23183b13cb63521705ec65704480f58aa0c151a6340f94442a4d29178d8585be",
+  "gif_sha256": "6d4113f8f128af4480a3cf69d316866e35765ef3076c549ffc0288e6931fb466",
+  "gif_size_bytes": 7170357,
   "source_duration_seconds": 10.0,
   "source_video_fps": 50,
   "source_video_frames": 500,
@@ -26,11 +29,17 @@
   "height": 640,
   "display_label": "fw-est342 + fw-cont24",
   "label_source": "Already rendered in the source neural video",
-  "source_observation_hz": 100,
+  "source_observation_hz": 100.0,
   "source_ticks": 1000,
   "source_dt": 0.01,
   "display_stride": 2,
   "sampling": "Every second recorded 100 Hz activity/input sample; synchronized source episode at 50 fps; no interpolation or duplicated frames",
+  "view": {
+    "motion": "fixed",
+    "yaw_radians": 0.67,
+    "pitch_radians": -0.28
+  },
+  "view_provenance": "Fixed presentation view of actual visual-field coordinates and schematic cell-type depth; activity, receptor input and episode images remain time-varying recorded data",
   "encoding": {
     "palette": "Shared 128-color median-cut palette from 20 uniformly sampled source-video frames",
     "palette_sample_frame_indices": [
@@ -55,6 +64,7 @@
       450,
       475
     ],
+    "palette_sample_atlas": "Four columns by five rows, in chronological order",
     "dither": false,
     "disposal": 1,
     "optimize": true,
@@ -65,14 +75,12 @@
     "unique_decoded_frames": 500,
     "all_frame_durations_ms": 20,
     "total_duration_ms": 10000,
-    "presentation_source_matches_previous": [
-      "source_manifest_sha256",
-      "episode_video_sha256",
-      "units",
-      "scales_by_type",
-      "display_label",
-      "renderer_sha256"
-    ]
+    "source_frame_timestamps_match_50fps": true
   },
-  "purpose": "Display-only derivative; episode metrics come from the original scoring trace"
+  "purpose": "Display-only derivative; episode metrics come from the original scoring trace",
+  "seed_identity_annotation": {
+    "master_seed": "9122296628466624745",
+    "seed_scheme": "splitmix64-v1",
+    "annotation": "Exact episode identity embedded in GIF comment during encoding"
+  }
 }

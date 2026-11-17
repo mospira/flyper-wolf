@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/media/neural-overview-10s.gif" alt="Ten-second neural activity visualization with synchronized tracking footage">
+  <img src="docs/media/neural-overview-10s.gif" alt="Ten-second neural activity visualization from a fixed viewing angle with synchronized tracking footage">
 </p>
 
 The task is to keep a camera aimed at a moving bright sphere. The camera can turn in yaw and pitch but cannot move through the room. The system must infer where to aim from visual-circuit activity, rather than reading the target's position from the simulator.
@@ -24,25 +24,9 @@ The question I'm trying to explore is whether a fixed biologically grounded visu
 
 The camera's actions change what it sees next. This feedback makes tracking a **closed-loop** task since direction estimates should remain useful after the controller moves the camera.
 
-```mermaid
-flowchart TB
-  subgraph Inference[Inference: fixed model parameters]
-    S[Simulated target and camera] --> I[384 × 384 rendered view]
-    I --> P[Grayscale pooling: 721 receptors]
-    P --> F[Frozen FlyVis circuit: evolving activity]
-    F --> E[fw-est342 direction estimator]
-    E --> C[fw-cont24 proportional steering]
-    C --> A[Camera angular velocity]
-    A --> S
-  end
-  subgraph Fitting[Offline supervised learning]
-    G[Simulator geometry] --> L[True target direction labels]
-    F -. recorded activity .-> T[Fit estimator on training episodes]
-    L --> T
-    T -. learned weights .-> E
-  end
-  S --> Q[Time-on-target score]
-```
+<p align="center">
+  <img src="docs/media/architecture.svg" alt="Closed-loop inference: rendered camera view to receptor sampling, frozen FlyVis activity, fw-est342 direction estimates, and fw-cont24 camera steering. Offline supervised fitting uses recorded activity and simulator direction labels to update only the estimator." width="1100">
+</p>
 
 **Visual circuit.** A fixed grayscale transform averages 11 × 11 pixel neighborhoods at 721 hexagonally arranged receptors. FlyVis 1.2.0's pretrained `flow/0000/000` model processes these inputs. Its parameters stay frozen, while neural activity evolves across time. Each 10 ms observation advances the circuit through two 5 ms steps; reset includes one second of neutral-gray adaptation.
 
@@ -70,7 +54,7 @@ The estimator receives circuit activity; the controller receives its predicted d
 
 <p align="center"><em>Actual receptor input and T4/T5 activity from the ten-second fw-est342 + fw-cont24 episode. Blue/red show decreases/increases from the circuit's gray-adapted reset state, with one fixed shared scale across the eight cell types. These are continuous model values (not spikes). Input at time t produces the neural state at t + 10 ms. The GIF displays 10 frames/s; inference and archival recording remain at 100 Hz.</em></p>
 
-An MP4 exporter renders all model units as a rotating 3D point cloud alongside the episode video and receptor input. Visual-field coordinates come from the model; depth separates cell types schematically and does not represent brain anatomy or processing order. Its fixed per-type color scales reveal changes within each type so intensity should not be compared between types. The commands below regenerate these visualizations without a browser.
+An MP4 exporter renders all model units as a fixed-angle 3D point cloud alongside the episode video and receptor input. Neural activity animates while the viewpoint stays still. Visual-field coordinates come from the model; depth separates cell types schematically and does not represent brain anatomy or processing order. Its fixed per-type color scales reveal changes within each type so intensity should not be compared between types. The commands below regenerate these visualizations without a browser.
 
 **Task and score.** Both examples use a 12 × 16 × 8 room, camera at `(0, -6, 4)`, 90° horizontal field of view, sphere radius 0.288, and `smooth-reactive-plane-v1` motion at speed multiplier 1.1. Pitch is limited to ±80°. Time on target is **100 × contact time / full episode duration**, including startup. Contact means the camera's forward ray intersects the sphere. Scoring samples ten midpoints per 10 ms action interval (1 ms resolution), accounting for movement between observations rather than counting video frames.
 
@@ -188,7 +172,10 @@ python -m flyper_wolf run --config configs/episode.yaml \
   --model-bundle models/local --output runs/neural-example \
   --device cuda:0 --record-neural
 python -m flyper_wolf neural-video --run runs/neural-example \
-  --output runs/neural-example/neural-activity.mp4 --fps 20
+  --output runs/neural-example/neural-activity.mp4 --fps 50
+# Optional fixed-view overview GIF (requires a ten-second recording):
+python scripts/make_neural_overview_gif.py runs/neural-example \
+  runs/neural-example/neural-activity.mp4 runs/neural-example/neural-overview.gif
 # Optional spatial-map GIF used in this README:
 python scripts/make_neural_gif.py runs/neural-example runs/neural-example/neural-activity.gif
 ```
