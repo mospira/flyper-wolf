@@ -146,7 +146,7 @@ class InferenceCoreTests(unittest.TestCase):
             events.append(("truth", frame.tick))
             return original_truth(frame, scene)
 
-        config = {"episode": {"duration_seconds": .24, "target_seed": 7, "camera_seed": 8},
+        config = {"episode": {"duration_seconds": .24, "master_seed": "15797634800710001662"},
                   "runtime": {"video": False}, "artifacts": {"estimator_manifest": "unused",
                   "flyvis_model_dir": "unused"}}
         with TemporaryDirectory() as temporary, patch.dict("sys.modules", {
@@ -159,6 +159,9 @@ class InferenceCoreTests(unittest.TestCase):
             with (Path(temporary)/"trace.csv").open(newline="") as handle:
                 rows = list(csv.DictReader(handle))
         self.assertEqual(result["metrics"]["circuit_steps"], 24)
+        self.assertEqual(result["episode"]["master_seed"], "15797634800710001662")
+        self.assertEqual(result["episode"]["seed_scheme"], "splitmix64-v1")
+        self.assertFalse({"target_seed", "camera_seed"} & result["episode"].keys())
         self.assertEqual(result["metrics"]["prediction_updates"], 4)
         self.assertEqual([value for name, value in events if name == "predict"], [21, 22, 23, 24])
         for tick, row in enumerate(rows):

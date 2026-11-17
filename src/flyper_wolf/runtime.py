@@ -17,6 +17,11 @@ from flyper_wolf.metrics import _interval_samples, angular_error_deg, camera_loc
 from flyper_wolf.scene import SceneConfig
 from flyper_wolf.scoring import SCORING_VERSION, score_interval
 from flyper_wolf.simulation import Simulation
+from flyper_wolf.seeding import SEED_SCHEME, derive_seeds, normalize_master_seed
+
+
+# Backend setup only; target motion and camera pose derive from master_seed.
+INFERENCE_SETUP_SEED = 74
 
 
 def _configure_runtime(settings):
@@ -25,7 +30,7 @@ def _configure_runtime(settings):
     import torch
 
     device = settings.get("device", "cpu")
-    seed = settings.get("seed", 74)
+    seed = INFERENCE_SETUP_SEED
     torch.set_num_threads(settings.get("cpu_threads", 1))
     random.seed(seed)
     np.random.seed(seed)
@@ -74,6 +79,12 @@ def run_episode(config: dict, output: Path):
     """
     output = Path(output)
     settings, episode = config.get("runtime", {}), config["episode"]
+    if "target_seed" in episode or "camera_seed" in episode or "seed" in settings:
+        raise ValueError("Episode randomness uses only master_seed; migrate legacy paired seeds first")
+    master_seed = normalize_master_seed(episode["master_seed"])
+    if episode.get("seed_scheme", SEED_SCHEME) != SEED_SCHEME:
+        raise ValueError(f"seed_scheme must be {SEED_SCHEME}")
+    target_seed, camera_seed = derive_seeds(master_seed)
     scene = SceneConfig(**config.get("scene", {}))
     ticks_float = episode["duration_seconds"] / scene.observation_dt
     ticks = round(ticks_float)
@@ -101,15 +112,16 @@ def run_episode(config: dict, output: Path):
     from .media_labels import pair_label
     display_label = pair_label(predictor.identity, config.get("controller", {}), scene.max_angular_speed)
     adapter = VisualInput(scene.image_size, scene.receptor_extent, scene.pooling_kernel)
-    simulation = Simulation(scene, seed=episode["target_seed"], target_speed=episode.get("target_speed", 1.1),
+    simulation = Simulation(scene, seed=target_seed, target_speed=episode.get("target_speed", 1.1),
                             trajectory_version=episode.get("trajectory_version", "smooth-reactive-plane-v1"))
-    rng = np.random.default_rng(episode["camera_seed"])
+    rng = np.random.default_rng(camera_seed)
     seeded_yaw, seeded_pitch = float(rng.uniform(-25, 25)), float(rng.uniform(-16, 16))
     simulation.yaw = seeded_yaw if episode.get("initial_yaw") is None else episode["initial_yaw"]
     simulation.pitch = seeded_pitch if episode.get("initial_pitch") is None else episode["initial_pitch"]
     if not np.isfinite([simulation.yaw, simulation.pitch]).all() or abs(simulation.pitch) > scene.pitch_limit:
         raise ValueError("Initial camera pose must be finite and respect pitch limits")
-    resolved_episode = {**episode, "initial_yaw": simulation.yaw, "initial_pitch": simulation.pitch,
+    resolved_episode = {**episode, "master_seed": master_seed, "seed_scheme": SEED_SCHEME,
+                        "initial_yaw": simulation.yaw, "initial_pitch": simulation.pitch,
                         "episode_ticks": ticks, "target_speed": simulation.target_speed,
                         "trajectory_version": simulation.trajectory_version}
     output.mkdir(parents=True, exist_ok=True)

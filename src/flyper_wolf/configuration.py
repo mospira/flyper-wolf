@@ -9,17 +9,18 @@ import yaml
 
 from .scene import SceneConfig
 from .motion import MOTION_VERSIONS
+from .seeding import SEED_SCHEME, normalize_master_seed
 
 
 DEFAULTS = {
     "schema_version": 1,
     "model_bundle": "../models/release",
     "scene": {"target_radius": 0.288},
-    "episode": {"duration_seconds": 10.0, "target_seed": 302000001,
-                "camera_seed": 303000001, "target_speed": 1.1,
+    "episode": {"duration_seconds": 10.0, "master_seed": "9122296628466624745",
+                "seed_scheme": SEED_SCHEME, "target_speed": 1.1,
                 "trajectory_version": "smooth-reactive-plane-v1",
                 "initial_yaw": None, "initial_pitch": None},
-    "runtime": {"device": "cpu", "cpu_threads": 4, "seed": 74, "integration_dt": 0.005, "warmup_seconds": 1.0,
+    "runtime": {"device": "cpu", "cpu_threads": 4, "integration_dt": 0.005, "warmup_seconds": 1.0,
                 "initial_zero_ticks": 20, "scoring_substeps": 10,
                 "video": True, "video_fps": 50, "record_neural": False},
     "controller": {"gain_yaw": 24.0, "gain_pitch": 24.0},
@@ -34,6 +35,12 @@ def positive(value, name):
 def load_config(path, overrides=None):
     path = Path(path).resolve()
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return _load_config_mapping(path, raw, overrides)
+
+
+def _load_config_mapping(path, raw, overrides=None):
+    """Validate an already-read mapping; archival bundles migrate privately."""
+    path = Path(path).resolve()
     if not isinstance(raw, dict) or set(raw) - set(DEFAULTS):
         raise ValueError(f"Config must be a mapping with keys {sorted(DEFAULTS)}")
     config = deepcopy(DEFAULTS)
@@ -49,6 +56,8 @@ def load_config(path, overrides=None):
         if value is None:
             continue
         group, key = dotted.split(".")
+        if group not in config or not isinstance(config[group], dict) or key not in config[group]:
+            raise ValueError(f"Unknown configuration override: {dotted}")
         config[group][key] = value
     if type(config["schema_version"]) is not int or config["schema_version"] != 1:
         raise ValueError("Only config schema_version 1 is supported")
@@ -59,9 +68,9 @@ def load_config(path, overrides=None):
     scene = SceneConfig(**config["scene"])
     config["scene"] = asdict(scene)
     episode, runtime = config["episode"], config["runtime"]
-    for key in ("target_seed", "camera_seed"):
-        if type(episode[key]) is not int or not 0 <= episode[key] < 2**32:
-            raise ValueError(f"{key} must be a uint32 integer")
+    episode["master_seed"] = normalize_master_seed(episode["master_seed"])
+    if episode["seed_scheme"] != SEED_SCHEME:
+        raise ValueError(f"seed_scheme must be {SEED_SCHEME}")
     if episode["trajectory_version"] not in MOTION_VERSIONS:
         raise ValueError(f"trajectory_version must be one of {MOTION_VERSIONS}")
     for name in ("duration_seconds", "target_speed"):
@@ -86,8 +95,6 @@ def load_config(path, overrides=None):
         raise ValueError("This inference contract fixes initial_zero_ticks=20 and scoring_substeps=10")
     if type(runtime["cpu_threads"]) is not int or runtime["cpu_threads"] < 1:
         raise ValueError("cpu_threads must be a positive integer")
-    if type(runtime["seed"]) is not int or not 0 <= runtime["seed"] < 2**32:
-        raise ValueError("runtime seed must be a uint32 integer")
     if 100 % runtime["video_fps"]:
         raise ValueError("video_fps must divide the 100 Hz observation rate")
     if round(ticks) % (100 // runtime["video_fps"]):

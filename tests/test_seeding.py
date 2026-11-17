@@ -5,6 +5,8 @@ import json
 import numpy as np
 import pytest
 
+from flyper_wolf.cli import _config, parser
+from flyper_wolf.configuration import load_config
 from flyper_wolf.scene import SceneConfig
 from flyper_wolf.seeding import (
     SEED_SCHEME, derive_seeds, episode_seed_identity, master_seed_from_legacy_pair, normalize_master_seed,
@@ -63,3 +65,24 @@ def test_migration_preserves_camera_draws_and_target_motion():
         assert old.snapshot() == new.snapshot()
         old.step(action)
         new.step(action)
+
+
+def test_config_and_cli_persist_one_exact_master_seed(tmp_path):
+    path = tmp_path / "episode.yaml"
+    path.write_text("{}")
+    args = parser().parse_args(["run", "--config", str(path), "--output", "unused",
+                               "--master-seed", "18446744073709551615"])
+    episode = _config(args)["episode"]
+    assert episode["master_seed"] == "18446744073709551615"
+    assert episode["seed_scheme"] == SEED_SCHEME
+    assert not {"target_seed", "camera_seed"} & episode.keys()
+    for text in ["episode:\n  target_seed: 7\n", "episode:\n  camera_seed: 8\n",
+                 "runtime:\n  seed: 74\n", "episode:\n  seed_scheme: unknown\n"]:
+        path.write_text(text)
+        with pytest.raises(ValueError):
+            load_config(path)
+    for flag in ["--target-seed", "--camera-seed"]:
+        with pytest.raises(SystemExit):
+            parser().parse_args(["run", "--output", "unused", flag, "7"])
+    path.write_text("episode:\n  master_seed: 9007199254740993\n")
+    assert load_config(path)["episode"]["master_seed"] == "9007199254740993"

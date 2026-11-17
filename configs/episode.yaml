@@ -5,8 +5,8 @@ scene:
   target_radius: 0.288
 episode:
   duration_seconds: 10.0
-  target_seed: 302000001
-  camera_seed: 303000001
+  master_seed: "9122296628466624745"
+  seed_scheme: splitmix64-v1
   target_speed: 1.1
   trajectory_version: smooth-reactive-plane-v1
 runtime:

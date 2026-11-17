@@ -68,10 +68,37 @@ def test_export_pins_validated_inference_config_and_preserves_input(source, tmp_
     assert pinned["scene"]["target_radius"] == 0.29
     assert pinned["runtime"]["integration_dt"] == 0.005
     assert pinned["runtime"]["video"] is False
+    assert pinned["episode"]["master_seed"] == "9122296628466624745"
+    assert pinned["episode"]["seed_scheme"] == "splitmix64-v1"
+    assert not {"target_seed", "camera_seed"} & pinned["episode"].keys()
+    assert "seed" not in pinned["runtime"]
     assert "C:/private" not in path.read_text()
     assert config["model_bundle"] == "C:/private/model"
     assert config["artifacts"]["estimator_manifest"] == "C:/private/manifest"
     path.write_text(path.read_text().replace("gain_yaw: 22.0", "gain_yaw: 25.0"))
+    with pytest.raises(BundleError, match="SHA256 mismatch"):
+        verify_bundle(bundle.root)
+
+
+def test_archived_bundle_config_verified_before_read_only_conversion(source, tmp_path):
+    from flyper_wolf.artifacts import _validate_inference_config
+
+    bundle = export(source, tmp_path)
+    path = bundle.root / "inference-config.yaml"
+    path.write_text(yaml.safe_dump({"model_bundle": ".", "episode": {
+        "target_seed": 302000001, "camera_seed": 303000001}, "runtime": {"seed": 74}}))
+    original = path.read_bytes()
+    manifest = bundle.manifest
+    manifest["inference_config"] = path.name
+    manifest["artifacts"][path.name] = sha256_file(path)
+    write_manifest(bundle, manifest)
+    assert verify_bundle(bundle.root).hashes[path.name] == sha256_file(path)
+    canonical = _validate_inference_config(path)
+    assert canonical["episode"]["master_seed"] == "9122296628466624745"
+    assert not {"target_seed", "camera_seed"} & canonical["episode"].keys()
+    assert "seed" not in canonical["runtime"]
+    assert path.read_bytes() == original
+    path.write_text(path.read_text().replace("302000001", "302000002"))
     with pytest.raises(BundleError, match="SHA256 mismatch"):
         verify_bundle(bundle.root)
 

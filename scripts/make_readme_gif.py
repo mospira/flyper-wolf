@@ -8,8 +8,12 @@ from pathlib import Path
 import av
 from PIL import Image, ImageDraw, ImageFont
 
+from flyper_wolf.media_labels import seed_comment
+from flyper_wolf.seeding import normalize_master_seed, SEED_SCHEME
 
-def encode(source, output, *, fps=10, width=384, speed=1, label=None):
+
+def encode(source, output, *, master_seed, fps=10, width=384, speed=1, label=None):
+    seed_identity = {"master_seed": normalize_master_seed(master_seed), "seed_scheme": SEED_SCHEME}
     if output.exists():
         raise FileExistsError(f"Refusing to overwrite {output}")
     if fps < 1 or fps > 50 or width < 1 or speed < 1:
@@ -36,8 +40,9 @@ def encode(source, output, *, fps=10, width=384, speed=1, label=None):
     if not frames:
         raise ValueError("Input video has no decodable frames")
     output.parent.mkdir(parents=True, exist_ok=True)
-    frames[0].save(output, save_all=True, append_images=frames[1:], duration=round(1000/fps), loop=0, optimize=True, disposal=2)
-    receipt = {"source_video_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+    frames[0].save(output, save_all=True, append_images=frames[1:], duration=round(1000/fps), loop=0,
+                   optimize=True, disposal=2, comment=seed_comment(seed_identity))
+    receipt = {**seed_identity, "source_video_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
                "gif_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
                "source_duration_seconds": duration, "playback_speed": speed,
                "frames": len(frames), "fps": fps, "width": width, "display_label": label,
@@ -50,9 +55,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--master-seed", required=True, help="Exact episode identity as a decimal uint64")
     parser.add_argument("--fps", type=int, default=10)
     parser.add_argument("--width", type=int, default=384)
     parser.add_argument("--speed", type=float, default=1)
     parser.add_argument("--label", help="Optional model/controller caption above the video")
     args = parser.parse_args()
-    print(json.dumps(encode(args.source, args.output, fps=args.fps, width=args.width, speed=args.speed, label=args.label), indent=2))
+    print(json.dumps(encode(args.source, args.output, master_seed=args.master_seed,
+                            fps=args.fps, width=args.width, speed=args.speed, label=args.label), indent=2))

@@ -1,6 +1,7 @@
 # Evidence notes
 
-These are summaries of recorded research and compatibility checks, not new runs.
+These are summaries of recorded research and compatibility checks, including a
+master-seed replay of an already consumed compatibility case.
 The [original machine receipts](https://github.com/mospira/flyper-wolf/tree/6aee8115931f0c7416064ac053f27683d0d5ca56/docs/evidence)
 remain available in that fixed repository snapshot. Current artifact identities
 belong in the [release manifest](../../releases/fw-est342.json).
@@ -41,13 +42,15 @@ percentage points; its pointwise 95% percentile-bootstrap interval was
 Both arms acquired the target in every episode, but only 7/16 cases acquired
 sooner with 315. This preliminary replacement check did not evaluate fw-est342,
 use the final test, change the controller, or establish a deployment promotion.
-The [unchanged per-case CSV](277-vs315-per-case.csv) retains the detailed metrics.
+The [unchanged per-case CSV](277-vs315-per-case.csv) retains the detailed metrics
+and historical paired-seed fields from that experiment. Those archival fields
+are not current episode controls.
 
 ## Standalone runner
 
 A fresh independent environment, with no development `fly_aim` package installed,
 ran the locally exported fw-est342 + fw-cont24 bundle on the ten-second watch case
-(target/camera seeds 302000001/303000001). It reproduced **87.13% time on target**,
+(identified by master seed `9122296628466624745`, `splitmix64-v1`). It reproduced **87.13% time on target**,
 identical metrics, and all 1,000 numeric trace rows with maximum absolute difference
 0. The video contained 500 frames at 50 fps. Model parameters remained frozen.
 
@@ -57,14 +60,54 @@ initialization plus the run took 318.09 seconds. Exact agreement is scoped to
 that setup and known case; it does not establish cross-hardware equality or
 closed-loop parity for a freshly downloaded bundle. See the executable
 [reference configuration](../../configs/reference-fw-est342-fw-cont24.json).
+The seed conversion preserves both internal random streams. On November 16, 2026,
+the master-only runner replayed this case on the existing local bundle using
+master seed `9122296628466624745`. The reference checker passed; `metrics.json`
+and `trace.csv` were byte-identical to the original standalone reference, with
+**87.13% time on target**. This checks compatibility, not unseen performance.
 
-## Neural overview presentation
+## Archived episode compatibility
+
+New episodes use only `episode.master_seed` or `--master-seed`. Archived records
+may contain `target_seed` and `camera_seed`; these fields describe their original
+identities and are not accepted as controls for new episodes.
+`flyper_wolf.seeding.master_seed_from_legacy_pair(target_seed, camera_seed)`
+converts an archived pair into its exact master seed, preserving both internal
+random streams and the resulting target motion and camera pose. Bundle verification
+checks original file hashes before interpreting archived defaults in memory; it
+does not rewrite checksum-protected files. The archived `runtime.seed` setting is
+replaced by the same fixed backend reproducibility seed internally, outside the
+public run configuration.
+
+## Master identities in media
+
+The four episode GIFs in `docs/media/` now embed their exact `master_seed` and
+`seed_scheme` in GIF comment metadata; their captions and JSON receipts use that
+same identity. The identity migration inserted only a comment extension, preserving
+every encoded image, palette, frame delay and loop setting byte-for-byte. Its
+receipts recorded the unchanged animation payload SHA-256 and the complete file SHA-256.
+The ten-second GIFs retain 100/500 frames and ten-second playback; the sixty-second
+episode retains 150 frames and fifteen-second playback at 4× speed. The mascot
+spin has no simulator episode or seed.
 
 The neural overview was subsequently rendered again with a fixed 3D viewing angle.
 Its activity, receptor input, and synchronized episode still animate from the same
 recording at 50 fps. Its [updated receipt](../media/neural-overview-10s.json) records
 the new rendering and GIF hashes; this presentation change does not rerun inference
 or alter episode metrics.
+
+For future existing-episode media migrations, first validate the source receipt,
+then attach the identity without decoding or recompressing the animation:
+
+```bash
+python scripts/tag_episode_media.py docs/media/tracking-10s.json \
+  --master-seed 9122296628466624745
+```
+
+New neural GIF/video renderers include the identity automatically. The generic
+video-to-GIF encoder requires `--master-seed`; it cannot infer episode randomness
+from pixels. Original neural recordings and their historical hashes remain
+unchanged and are read through the archival identity converter.
 
 ## Neural recording
 

@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from flyper_wolf.neural_recording import load_recording
 from flyper_wolf.preprocessing import VisualInput
-from flyper_wolf.media_labels import recording_label
+from flyper_wolf.media_labels import recording_label, recording_seed_identity, seed_comment
 
 
 LAYERS = ("T4a", "T4b", "T4c", "T4d", "T5a", "T5b", "T5c", "T5d")
@@ -22,6 +22,7 @@ def make_gif(run, output, fps=10):
         raise FileExistsError(f"Refusing to overwrite {output}")
     recording = load_recording(run)
     label = recording_label(run, recording)
+    seed_identity = recording_seed_identity(recording)
     activity, baseline = recording["activity"], recording["baseline"]
     inputs, types, uv = recording["inputs"], recording["cell_types"], recording["axial_uv"]
     dt = recording["manifest"]["observation_dt"]
@@ -68,9 +69,10 @@ def make_gif(run, output, fps=10):
         draw.text((12, y+30), "Spatial cell maps; continuous model activity, not spikes. Fixed shared color scale.", font=small, fill="#bbcbd8")
         frames.append(canvas.convert("P", palette=Image.Palette.ADAPTIVE, colors=128))
     output.parent.mkdir(parents=True, exist_ok=True)
-    frames[0].save(output, save_all=True, append_images=frames[1:], duration=round(1000/fps), loop=0, disposal=2, optimize=True)
+    frames[0].save(output, save_all=True, append_images=frames[1:], duration=round(1000/fps), loop=0,
+                   disposal=2, optimize=True, comment=seed_comment(seed_identity))
     digest = lambda path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
-    receipt = {"schema_version": 1, "display_label": label, "source_neural_manifest_sha256": digest(Path(run)/"neural/manifest.json"),
+    receipt = {"schema_version": 1, **seed_identity, "display_label": label, "source_neural_manifest_sha256": digest(Path(run)/"neural/manifest.json"),
                "gif_sha256": digest(output), "source_ticks": len(activity), "frames": len(frames),
                "fps": fps, "source_dt": dt, "display_stride": stride, "layers": list(LAYERS),
                "baseline": "Actual pre-episode neutral-gray-adapted circuit state",

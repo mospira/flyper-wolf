@@ -40,13 +40,13 @@ The estimator receives circuit activity; the controller receives its predicted d
   <img src="docs/media/tracking-10s.gif" alt="Ten-second tracking example">
 </p>
 
-<p align="center"><em>fw-est342 + fw-cont24: ten-second example at normal speed, 87.13% time on target. Target/camera seeds: 302000001/303000001.</em></p>
+<p align="center"><em>fw-est342 + fw-cont24: ten-second example at normal speed, 87.13% time on target. Master seed: 9122296628466624745 (splitmix64-v1).</em></p>
 
 <p align="center">
   <img src="docs/media/tracking-60s.gif" alt="Continuous sixty-second tracking example">
 </p>
 
-<p align="center"><em>fw-est342 + fw-cont24: continuous sixty-second episode shown at 4× speed, 96.811667% time on target. Target/camera seeds: 304000001/305000001. One reset and one continuous episode. Its scenario differs from the ten-second example, so their scores do not isolate duration's effect.</em></p>
+<p align="center"><em>fw-est342 + fw-cont24: continuous sixty-second episode shown at 4× speed, 96.811667% time on target. Master seed: 7604549466244035895 (splitmix64-v1). One reset and one continuous episode. Its scenario differs from the ten-second example, so their scores do not isolate duration's effect.</em></p>
 
 <p align="center">
   <img src="docs/media/neural-activity.gif" alt="Recorded receptor input and T4/T5 neural activity">
@@ -156,12 +156,16 @@ python -m flyper_wolf run --config configs/episode.yaml \
   --model-bundle models/local --output runs/check --dry-run
 python -m flyper_wolf run --config configs/episode.yaml \
   --model-bundle models/local --output runs/example \
-  --target-seed 123 --camera-seed 456 --device cuda:0
+  --master-seed 123 --device cuda:0
 ```
 
 `--dry-run` checks configuration and artifacts without circuit inference. Use `--device cpu` for CPU execution, `--duration 30` for a thirty-second episode, and `--no-video` to skip video. Choose a fresh output directory for each run. YAML paths resolve relative to the configuration file; command-line paths resolve relative to the working directory.
 
-[The example configuration](configs/episode.yaml) contains `scene`, `episode`, `runtime`, and `controller` settings. Defaults reproduce the ten-second example: target/camera seeds 302000001/303000001, speed 1.1, radius 0.288, 100 Hz observations, 20 startup ticks, 5 ms circuit integration, ten scoring substeps, 50 fps video, and gains 24/24. It defaults to CPU; the camera start is seeded unless both yaw and pitch are explicitly set. Duration must exceed startup and align with observation/video timing. Changing scene, timing, motion, or control settings changes the experiment.
+[The example configuration](configs/episode.yaml) contains `scene`, `episode`, `runtime`, and `controller` settings. Defaults reproduce the ten-second example: master seed `9122296628466624745`, speed 1.1, radius 0.288, 100 Hz observations, 20 startup ticks, 5 ms circuit integration, ten scoring substeps, 50 fps video, and gains 24/24. It defaults to CPU; the camera start is seeded unless both yaw and pitch are explicitly set. Duration must exceed startup and align with observation/video timing. Changing scene, timing, motion, or control settings changes the experiment.
+
+One `episode.master_seed` determines target motion and the camera's random starting pose. It is an unsigned 64-bit integer, written as a quoted decimal string in YAML/JSON so browser tools preserve every digit. Python accepts exact integers or canonical decimal strings from `0` through `18446744073709551615`; signs, leading zeros, floating-point values, and booleans are rejected. The fixed `splitmix64-v1` scheme scrambles that value, then uses the lower 32 bits internally for target motion and the upper 32 bits for camera pose. Neither internal seed is a public setting or model input. Backend reproducibility setup uses an internal fixed seed 74, independent of episode identity.
+
+New episodes accept only the master seed. The documented demonstrations retain their original trajectories and scores under their converted master identities. Existing model bundles remain readable: verification checks their original checksums before converting archived episode settings in memory, leaving the files unchanged. Use the current configuration when running them; re-export from their original model artifacts to obtain a bundle with current defaults. See [archived episode compatibility](docs/evidence/README.md#archived-episode-compatibility) for migration details.
 
 Each run saves `resolved-config.yaml`, `metadata.json` (code/model/runtime identities and output hashes), `metrics.json`, `trace.csv`, and optional `episode.mp4`. Read time on target from metrics rather than counting video contacts. No development checkout or training corpus is needed.
 
@@ -201,8 +205,8 @@ The standalone runner reproduced the ten-second fw-est342 example in a fresh ind
 After exporting that exact bundle, run its pinned reference configuration:
 
 ```bash
-python -m flyper_wolf run --config models/local/inference-config.yaml \
-  --output runs/my-reference --device cuda:0
+python -m flyper_wolf run --config configs/episode.yaml \
+  --model-bundle models/local --output runs/my-reference --device cuda:0
 python scripts/check_reference.py runs/my-reference
 ```
 

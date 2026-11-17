@@ -137,13 +137,29 @@ def verify_bundle(bundle_dir: str | Path) -> VerifiedBundle:
 
 
 def _validate_inference_config(path: Path) -> dict[str, Any]:
-    from .configuration import load_config
+    from .configuration import _load_config_mapping
+    from .seeding import episode_seed_identity
 
     try:
         raw = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not isinstance(raw, dict) or raw.get("model_bundle") != ".":
             raise ValueError("model_bundle must be '.' relative to the bundle directory")
-        return load_config(path)
+        # verify_bundle checks the original artifact bytes before this function.
+        # Interpret archived defaults in memory; never edit checksum-bound files
+        # or accept paired seeds through the public config/CLI interface.
+        raw = deepcopy(raw)
+        episode = raw.get("episode", {})
+        if isinstance(episode, dict) and {"target_seed", "camera_seed"} & episode.keys():
+            identity = episode_seed_identity(episode)
+            episode.pop("target_seed", None)
+            episode.pop("camera_seed", None)
+            episode.update(identity)
+        runtime = raw.get("runtime", {})
+        if isinstance(runtime, dict) and "seed" in runtime:
+            if type(runtime["seed"]) is not int or runtime["seed"] != 74:
+                raise ValueError("Archived bundle requires the fixed inference setup seed 74")
+            runtime.pop("seed")
+        return _load_config_mapping(path, raw)
     except (TypeError, ValueError, yaml.YAMLError) as exc:
         raise BundleError(f"Invalid bundled inference configuration: {exc}") from exc
 

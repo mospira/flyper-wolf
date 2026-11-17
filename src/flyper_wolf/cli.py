@@ -51,8 +51,7 @@ def versions():
 def _config(args):
     overrides = {}
     for name, group, key in (("duration", "episode", "duration_seconds"),
-                             ("target_seed", "episode", "target_seed"),
-                             ("camera_seed", "episode", "camera_seed"),
+                             ("master_seed", "episode", "master_seed"),
                              ("target_speed", "episode", "target_speed"),
                              ("device", "runtime", "device")):
         overrides[f"{group}.{key}"] = getattr(args, name, None)
@@ -139,8 +138,7 @@ def parser():
         if name == "run":
             command.add_argument("--output", required=True)
             command.add_argument("--duration", type=float)
-            command.add_argument("--target-seed", type=int)
-            command.add_argument("--camera-seed", type=int)
+            command.add_argument("--master-seed", help="Canonical decimal uint64 episode identity")
             command.add_argument("--target-speed", type=float)
             command.add_argument("--no-video", action="store_true")
             command.add_argument("--record-neural", action="store_true",

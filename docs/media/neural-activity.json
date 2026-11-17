@@ -2,7 +2,7 @@
   "schema_version": 1,
   "display_label": "fw-est342 + fw-cont24",
   "source_neural_manifest_sha256": "cb79f333a3e5c552b5fc5a852a003add6dc9c08330474226242c76310d2f511e",
-  "gif_sha256": "4427ee56f03ff2e9e40a883f3e6de947e11dbece0bff685a42c0987d846e95cb",
+  "gif_sha256": "40744c8f987374f7399c7d0eb4341c60459c337d1db425dadd16d9d5c54097b0",
   "source_ticks": 1000,
   "frames": 100,
   "fps": 10,
@@ -77,5 +77,14 @@
       ]
     }
   },
-  "purpose": "Recorded activity visualization; display-only temporal downsampling"
+  "purpose": "Recorded activity visualization; display-only temporal downsampling",
+  "master_seed": "9122296628466624745",
+  "seed_scheme": "splitmix64-v1",
+  "seed_identity_annotation": {
+    "master_seed": "9122296628466624745",
+    "seed_scheme": "splitmix64-v1",
+    "gif_sha256": "40744c8f987374f7399c7d0eb4341c60459c337d1db425dadd16d9d5c54097b0",
+    "annotation": "GIF comment only; encoded pixels, palettes, timing and loop bytes unchanged",
+    "animation_payload_sha256": "4427ee56f03ff2e9e40a883f3e6de947e11dbece0bff685a42c0987d846e95cb"
+  }
 }

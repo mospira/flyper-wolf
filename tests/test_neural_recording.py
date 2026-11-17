@@ -110,7 +110,7 @@ def _spy_episode(monkeypatch, output, *, recording, failure_tick=None, mutate_pa
     monkeypatch.setitem(sys.modules, "flyper_wolf.rendering", SimpleNamespace(SceneRenderer=Renderer))
     monkeypatch.setattr(runtime, "load_frozen_estimator", lambda *args, **kwargs: Predictor())
     monkeypatch.setattr(runtime, "_configure_runtime", lambda settings: {"device": "cpu"})
-    config = {"episode": {"duration_seconds": .24, "target_seed": 7, "camera_seed": 8},
+    config = {"episode": {"duration_seconds": .24, "master_seed": "15797634800710001662"},
               "runtime": {"video": False, "record_neural": recording},
               "artifacts": {"estimator_manifest": "unused", "flyvis_model_dir": "unused"}}
     result = runtime.run_episode(deepcopy(config), output)
@@ -126,6 +126,9 @@ def test_capture_does_not_change_predictions_actions_score_or_episode_lifecycle(
     assert plain_events == saved_events == [("fly-hash", 0), ("reset", 0), ("fly-hash", 24), ("renderer-close", None)]
     assert not (tmp_path / "plain/neural").exists()
     manifest = json.loads((tmp_path / "saved/neural/manifest.json").read_text())
+    assert manifest["episode"]["master_seed"] == "15797634800710001662"
+    assert manifest["episode"]["seed_scheme"] == "splitmix64-v1"
+    assert not {"target_seed", "camera_seed"} & manifest["episode"].keys()
     assert manifest["complete"] is True and manifest["frames_recorded"] == 24
     assert manifest["frozen_parameters_unchanged"] is True
     activity = np.load(tmp_path / "saved/neural/activity.npy")
